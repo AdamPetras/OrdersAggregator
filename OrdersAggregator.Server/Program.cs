@@ -1,7 +1,10 @@
 ﻿using System.Reflection;
+using OrdersAggregator.DAL.Extensions;
 
 namespace OrdersAggregator.Server
 {
+    using OrdersAggregator.DAL;
+
     /// <summary>
     /// Configures and runs the ASP.NET Core web application.
     /// </summary>
@@ -28,6 +31,7 @@ namespace OrdersAggregator.Server
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddDal(builder.Configuration);
 
             WebApplication app = builder.Build();
 
@@ -56,6 +60,7 @@ namespace OrdersAggregator.Server
 
             app.MapFallbackToFile("index.html");
 
+            await app.Services.EnsureOrdersDatabaseCreatedAsync();
             await app.RunAsync();
         }
     }

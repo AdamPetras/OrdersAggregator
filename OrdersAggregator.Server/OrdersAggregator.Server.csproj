@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\OrdersAggregator.Core\OrdersAggregator.Core.csproj" />
+    <ProjectReference Include="..\OrdersAggregator.DAL\OrdersAggregator.DAL.csproj" />
   </ItemGroup>
 </Project>

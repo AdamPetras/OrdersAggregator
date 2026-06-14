@@ -2,12 +2,25 @@
     <PropertyGroup>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
+    <ItemGroup>
+      <Compile Remove="Installers\**" />
+      <EmbeddedResource Remove="Installers\**" />
+      <None Remove="Installers\**" />
+    </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OrdersAggregator.Core\OrdersAggregator.Core.csproj" />
+    <ProjectReference Include="..\OrdersAggregator.DAL\OrdersAggregator.DAL.csproj" />
+    <ProjectReference Include="..\OrdersAggregator.DAL.Entities\OrdersAggregator.DAL.Entities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
