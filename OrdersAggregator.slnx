@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/00.DAL/">
+    <Project Path="OrdersAggregator.DAL.Entities/OrdersAggregator.DAL.Entities.csproj" Id="91a4ce00-ee2e-427e-9fb1-c6b29105374a" />
+    <Project Path="OrdersAggregator.DAL.Tests/OrdersAggregator.DAL.Tests.csproj" Id="0b417e82-6582-408d-9ddd-e96dfdbb8bda" />
+    <Project Path="OrdersAggregator.DAL/OrdersAggregator.DAL.csproj" Id="eb7507d0-11e1-44b9-a429-8d495d886d8f" />
+  </Folder>
+  <Folder Name="/01.Server/">
+    <Project Path="OrdersAggregator.Server.Business.Tests/OrdersAggregator.Server.Business.Tests.csproj" Id="9712df99-8710-4e57-895a-2258a74b66fc" />
+    <Project Path="OrdersAggregator.Server.Business/OrdersAggregator.Server.Business.csproj" Id="09be47ae-d7fb-42c3-a5e9-d5507d08e5ee" />
+    <Project Path="OrdersAggregator.Server/OrdersAggregator.Server.csproj" />
+  </Folder>
+  <Folder Name="/02.Contracts/">
+    <Project Path="OrdersAggregator.Contracts/OrdersAggregator.Contracts.csproj" Id="24df2c1e-06da-41eb-bac2-e983ab6403f6" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="OrdersAggregator.Core/OrdersAggregator.Core.csproj" Id="619dd3ff-8859-41c6-a4f7-5f4062e06948" />
+  <Project Path="OrdersAggregator/OrdersAggregator.Client.csproj" />
+</Solution>
