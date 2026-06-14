@@ -1,7 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <Folder Include="Services\" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OrdersAggregator.Contracts\OrdersAggregator.Contracts.csproj" />
+    <ProjectReference Include="..\OrdersAggregator.Core\OrdersAggregator.Core.csproj" />
+    <ProjectReference Include="..\OrdersAggregator.DAL\OrdersAggregator.DAL.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>

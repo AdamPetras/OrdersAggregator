@@ -30,6 +30,8 @@ namespace OrdersAggregator.DAL.Configurations
 
             builder.HasIndex(entity => entity.ProductId)
                 .IsUnique();
+
+            builder.Property(entity => entity.DispatchedAt);
         }
     }
 }

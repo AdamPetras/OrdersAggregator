@@ -5,6 +5,8 @@ using OrdersAggregator.DAL.Configuration;
 
 namespace OrdersAggregator.DAL
 {
+    using OrdersAggregator.DAL.Services;
+
     /// <summary>
     /// Registers DAL services, including the orders database context and persistence options.
     /// </summary>
@@ -23,12 +25,19 @@ namespace OrdersAggregator.DAL
             ConnectionStringOptions options = new ConnectionStringOptions();
             configuration.GetSection(ConnectionStringOptions.SectionName).Bind(options);
 
+            services.AddScoped<IOrdersDbContextProvider, OrdersDbContextProvider>();
             services.AddSingleton(options);
-            services.AddDbContextPool<OrdersDbContext>(dbContextOptions => ConfigureDbContext(dbContextOptions, options));
+
+            if (options.UseInMemory)
+            {
+                return;
+            }
+
+            services.AddPooledDbContextFactory<OrdersDbContext>(dbContextOptions => ConfigureDbContext(dbContextOptions, options));
         }
 
         /// <summary>
-        /// Configures the database context options based on the specified persistence options. If the provider is PostgresSQL, it uses the connection string to configure the context. Otherwise, it configures an in-memory database with the specified name.
+        /// Configures the database context options for PostgresSQL-backed persistence.
         /// </summary>
         /// <param name="dbContextOptions">The database context options builder to configure.</param>
         /// <param name="options">The persistence options to use for configuration.</param>
@@ -39,14 +48,8 @@ namespace OrdersAggregator.DAL
             ArgumentNullException.ThrowIfNull(dbContextOptions);
             ArgumentNullException.ThrowIfNull(options);
 
-            if (!options.UseInMemory)
-            {
-                ArgumentException.ThrowIfNullOrWhiteSpace(options.ConnectionString);
-                dbContextOptions.UseNpgsql(options.ConnectionString);
-                return;
-            }
-
-            dbContextOptions.UseInMemoryDatabase(nameof(OrdersAggregator));
+            ArgumentException.ThrowIfNullOrWhiteSpace(options.ConnectionString);
+            dbContextOptions.UseNpgsql(options.ConnectionString);
         }
     }
 }

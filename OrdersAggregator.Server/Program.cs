@@ -1,9 +1,13 @@
 ﻿using System.Reflection;
 using OrdersAggregator.DAL.Extensions;
+using OrdersAggregator.Server.Business;
 
 namespace OrdersAggregator.Server
 {
     using OrdersAggregator.DAL;
+
+    using OrdersDispatcher;
+    using OrdersDispatcher.Services;
 
     /// <summary>
     /// Configures and runs the ASP.NET Core web application.
@@ -32,6 +36,8 @@ namespace OrdersAggregator.Server
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
             builder.Services.AddDal(builder.Configuration);
+            builder.Services.AddBusiness(builder.Configuration);
+            builder.Services.AddOrdersDispatcher(builder.Configuration);
 
             WebApplication app = builder.Build();
 

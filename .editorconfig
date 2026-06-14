@@ -242,3 +242,6 @@ tab_width = 4
 
 [**/Migrations/*.cs]
 generated_code = true
+
+[*.{cs,vb}]
+dotnet_diagnostic.IDE0063.severity = none

@@ -22,8 +22,17 @@ namespace OrdersAggregator.DAL.Extensions
 
             using (IServiceScope scope = serviceProvider.CreateScope())
             {
-                OrdersDbContext dbContext = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
-                await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+                IDbContextFactory<OrdersDbContext>? dbContextFactory = scope.ServiceProvider.GetService<IDbContextFactory<OrdersDbContext>>();
+
+                if (dbContextFactory is null)
+                {
+                    return;
+                }
+
+                await using (OrdersDbContext dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken))
+                {
+                    await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+                }
             }
         }
     }

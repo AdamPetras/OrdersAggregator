@@ -19,5 +19,10 @@
         /// Gets or sets when the aggregate row was created.
         /// </summary>
         public long Quantity { get; set; }
+
+        /// <summary>
+        /// Gets or sets when the aggregate row was last updated, which corresponds to when the most recent order for the product was received. This timestamp is used to determine which product aggregates are pending and should be included in the next dispatch batch.
+        /// </summary>
+        public DateTimeOffset? DispatchedAt { get; set; }
     }
 }
