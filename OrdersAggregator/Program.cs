@@ -2,6 +2,11 @@
 {
     using Microsoft.AspNetCore.Components.Web;
     using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+    using MudBlazor.Services;
+    using OrdersAggregator.Client.Infrastructure;
+    using OrdersAggregator.Client.Services;
+    using OrdersAggregator.Contracts.Serialization;
+    using Refit;
 
     /// <summary>
     /// Provides the entry point for the Blazor WebAssembly application.
@@ -20,11 +25,16 @@
         /// <returns>A task that represents the asynchronous operation of running the application.</returns>
         public static async Task Main(string[] args)
         {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
+
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            Uri baseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+
+            builder.Services.AddMudServices();
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = baseAddress });
+            builder.Services.AddApiClients(baseAddress);
 
             await builder.Build().RunAsync();
         }

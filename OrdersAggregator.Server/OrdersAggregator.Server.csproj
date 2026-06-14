@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OrdersAggregator\OrdersAggregator.Client.csproj" />
     <ProjectReference Include="..\OrdersAggregator.Contracts\OrdersAggregator.Contracts.csproj" />
     <ProjectReference Include="..\OrdersAggregator.Core\OrdersAggregator.Core.csproj" />
     <ProjectReference Include="..\OrdersAggregator.DAL\OrdersAggregator.DAL.csproj" />

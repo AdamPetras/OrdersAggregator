@@ -42,39 +42,40 @@ public class ConnectionStringOptions : IOptionsWithSectionName, IValidatableObje
             return Array.Empty<ValidationResult>();
         }
 
-        List<ValidationResult> errors = new List<ValidationResult>();
+        List<ValidationResult> errors = [];
         if (string.IsNullOrWhiteSpace(ConnectionString))
         {
-            errors.Add(new ValidationResult("ConnectionString connection string is required.", new[] { nameof(ConnectionString) }));
+            errors.Add(new ValidationResult("ConnectionString connection string is required.", [nameof(ConnectionString)
+                ]));
         }
         else
         {
             try
             {
-                NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder(ConnectionString);
+                NpgsqlConnectionStringBuilder builder = new(ConnectionString);
                 if (string.IsNullOrWhiteSpace(builder.Host))
                 {
-                    errors.Add(new ValidationResult("ConnectionString connection string must include a valid Host.", new[] { nameof(ConnectionString) }));
+                    errors.Add(new ValidationResult("ConnectionString connection string must include a valid Host.", [nameof(ConnectionString)]));
                 }
 
                 if (string.IsNullOrWhiteSpace(builder.Database))
                 {
-                    errors.Add(new ValidationResult("ConnectionString connection string must include a valid Database.", new[] { nameof(ConnectionString) }));
+                    errors.Add(new ValidationResult("ConnectionString connection string must include a valid Database.", [nameof(ConnectionString)]));
                 }
 
                 if (string.IsNullOrWhiteSpace(builder.Username))
                 {
-                    errors.Add(new ValidationResult("ConnectionString connection string must include a valid Username.", new[] { nameof(ConnectionString) }));
+                    errors.Add(new ValidationResult("ConnectionString connection string must include a valid Username.", [nameof(ConnectionString)]));
                 }
 
                 if (string.IsNullOrWhiteSpace(builder.Password))
                 {
-                    errors.Add(new ValidationResult("ConnectionString connection string must include a valid Password.", new[] { nameof(ConnectionString) }));
+                    errors.Add(new ValidationResult("ConnectionString connection string must include a valid Password.", [nameof(ConnectionString)]));
                 }
             }
             catch (Exception ex)
             {
-                errors.Add(new ValidationResult($"ConnectionString connection string is invalid: {ex.Message}", new[] { nameof(ConnectionString) }));
+                errors.Add(new ValidationResult($"ConnectionString connection string is invalid: {ex.Message}", [nameof(ConnectionString)]));
             }
         }
 

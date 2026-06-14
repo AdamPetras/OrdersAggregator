@@ -1,0 +1,14 @@
+﻿@page "/error/forbidden"
+@layout MainLayout
+@inject NavigationManager NavigationManager
+
+<MudPaper Class="pa-6">
+    <MudStack Spacing="3" AlignItems="AlignItems.Center">
+        <MudProgressCircular Color="Color.Error" Indeterminate="true" Size="Size.Large" />
+        <MudText Typo="Typo.h5">AccessDeniedTitle</MudText>
+        <MudText>AccessDeniedMessage</MudText>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="NavigateHome">
+            BackToHome
+        </MudButton>
+    </MudStack>
+</MudPaper>

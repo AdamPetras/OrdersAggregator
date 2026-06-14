@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using OrdersAggregator.Contracts.Serialization;
 using OrdersAggregator.DAL.Extensions;
 using OrdersAggregator.Server.Business;
 
@@ -17,6 +18,8 @@ namespace OrdersAggregator.Server
     /// but is required for application startup in ASP.NET Core projects.</remarks>
     public class Program
     {
+        private const string DevelopmentClientCorsPolicyName = "DevelopmentClient";
+
         /// <summary>
         /// The main entry point for the application. This method configures the web application builder, sets up services,
         /// configures middleware, and starts the web server.
@@ -26,9 +29,11 @@ namespace OrdersAggregator.Server
         public static async Task Main(string[] args)
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+            string[] developmentClientOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 
             builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options => OrderApiJsonSerializer.Apply(options.JsonSerializerOptions));
 
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
@@ -38,6 +43,17 @@ namespace OrdersAggregator.Server
             builder.Services.AddDal(builder.Configuration);
             builder.Services.AddBusiness(builder.Configuration);
             builder.Services.AddOrdersDispatcher(builder.Configuration);
+
+            if (developmentClientOrigins.Length > 0)
+            {
+                builder.Services.AddCors(
+                    options => options.AddPolicy(
+                        name: DevelopmentClientCorsPolicyName,
+                        policyBuilder => policyBuilder
+                            .WithOrigins(developmentClientOrigins)
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()));
+            }
 
             WebApplication app = builder.Build();
 
@@ -58,6 +74,11 @@ namespace OrdersAggregator.Server
             }
 
             app.UseRouting();
+
+            if (developmentClientOrigins.Length > 0)
+            {
+                app.UseCors(DevelopmentClientCorsPolicyName);
+            }
 
             app.UseAuthentication();
             app.UseAuthorization();

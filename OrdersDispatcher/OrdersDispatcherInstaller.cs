@@ -21,10 +21,9 @@ public static class OrdersDispatcherInstaller
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        OrderDispatchOptions orderDispatchOptions = new();
-        configuration.GetSection(OrderDispatchOptions.SectionName).Bind(orderDispatchOptions);
+        services.ConfigureOptions<OrderDispatchOptionsConfiguration>();
 
-        services.AddSingleton(orderDispatchOptions);
+        services.AddSingleton<IAggregatedOrderDispatcher, AggregatedOrderDispatcher>();
         services.AddHostedService<OrderDispatchBackgroundService>();
     }
 }

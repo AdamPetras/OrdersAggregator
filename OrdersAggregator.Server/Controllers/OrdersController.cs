@@ -38,11 +38,11 @@ namespace OrdersAggregator.Server.Controllers
         {
             if (request is null)
             {
-                return this.BadRequest(
+                return BadRequest(
                     new ValidationProblemDetails(
                         new Dictionary<string, string[]>
                         {
-                            ["request"] = new[] { "The request body must contain at least one order." },
+                            ["request"] = ["The request body must contain at least one order."],
                         })
                     {
                         Title = "Invalid order payload.",
@@ -54,11 +54,11 @@ namespace OrdersAggregator.Server.Controllers
                 OrderSubmissionResult submissionResult =
                     await _orderService.AddOrdersAsync(request.ProductOrders, cancellationToken);
 
-                return this.Accepted(new ProductOrderResponseDto(submissionResult.AcceptedOrderCount));
+                return Accepted(new ProductOrderResponseDto(submissionResult.AcceptedOrderCount));
             }
             catch (OrderSubmissionValidationException ex)
             {
-                return this.BadRequest(
+                return BadRequest(
                     new ValidationProblemDetails(
                         ex.Errors.ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.Ordinal))
                     {

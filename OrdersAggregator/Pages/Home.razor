@@ -1,7 +1,223 @@
 ﻿@page "/"
+@using System.Text.Json
+@using Refit
+@inject IOrdersApi OrdersApi
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Orders</PageTitle>
 
-<h1>Hello, world!</h1>
+<MudPaper Elevation="2" Class="pa-6">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h4">Submit product orders</MudText>
 
-Welcome to your new app.
+        <MudText Typo="Typo.body1">
+            This client sends the order batch through Refit to <code>/api/orders</code>. The server accepts the batch,
+            aggregates quantities by product, and dispatches the grouped orders asynchronously.
+        </MudText>
+
+        @if (!string.IsNullOrWhiteSpace(_successMessage))
+        {
+            <MudAlert Severity="Severity.Success" Variant="Variant.Filled">
+                @_successMessage
+            </MudAlert>
+        }
+
+        @if (_errorMessages.Count > 0)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
+                <MudText Typo="Typo.subtitle2" Class="mb-2">The request could not be accepted.</MudText>
+
+                <ul style="margin: 0; padding-left: 1.25rem;">
+                    @foreach (string errorMessage in _errorMessages)
+                    {
+                        <li>@errorMessage</li>
+                    }
+                </ul>
+            </MudAlert>
+        }
+
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6">Order lines</MudText>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="AddOrderLine" Disabled="_isSubmitting">
+                Add line
+            </MudButton>
+        </MudStack>
+
+        <MudStack Spacing="2">
+            @foreach (OrderLineInputModel orderLine in _orderLines)
+            {
+                <MudPaper @key="orderLine" Outlined="true" Class="pa-4">
+                    <MudGrid Spacing="2">
+                        <MudItem xs="12" sm="5">
+                            <MudTextField T="string"
+                                          Label="Product ID"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Dense"
+                                          Immediate="true"
+                                          Disabled="_isSubmitting"
+                                          @bind-Value="orderLine.ProductId" />
+                        </MudItem>
+
+                        <MudItem xs="12" sm="5">
+                            <MudNumericField T="long?"
+                                             Label="Quantity"
+                                             Variant="Variant.Outlined"
+                                             Margin="Margin.Dense"
+                                             Immediate="true"
+                                             Min="1"
+                                             Disabled="_isSubmitting"
+                                             @bind-Value="orderLine.Quantity" />
+                        </MudItem>
+
+                        <MudItem xs="12" sm="2" Class="d-flex align-center justify-end">
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="Color.Error"
+                                       Disabled="@(_orderLines.Count == 1 || _isSubmitting)"
+                                       OnClick="@(() => RemoveOrderLine(orderLine))">
+                                Remove
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            }
+        </MudStack>
+
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitOrdersAsync" Disabled="_isSubmitting">
+                @(_isSubmitting ? "Submitting..." : "Submit orders")
+            </MudButton>
+
+            <MudButton Variant="Variant.Outlined" Color="Color.Default" OnClick="ResetOrderLines" Disabled="_isSubmitting">
+                Reset
+            </MudButton>
+        </MudStack>
+    </MudStack>
+</MudPaper>
+
+@code {
+    private static readonly JsonSerializerOptions SerializerOptions = OrderApiJsonSerializer.Create();
+
+    private readonly List<OrderLineInputModel> _orderLines = [CreateEmptyOrderLine()];
+    private IReadOnlyList<string> _errorMessages = Array.Empty<string>();
+    private bool _isSubmitting;
+    private string? _successMessage;
+
+    private void AddOrderLine()
+    {
+        _orderLines.Add(CreateEmptyOrderLine());
+    }
+
+    private void RemoveOrderLine(OrderLineInputModel orderLine)
+    {
+        ArgumentNullException.ThrowIfNull(orderLine);
+
+        if (_orderLines.Count == 1)
+        {
+            return;
+        }
+
+        _orderLines.Remove(orderLine);
+    }
+
+    private void ResetOrderLines()
+    {
+        _orderLines.Clear();
+        _orderLines.Add(CreateEmptyOrderLine());
+        _errorMessages = Array.Empty<string>();
+        _successMessage = null;
+    }
+
+    private async Task SubmitOrdersAsync()
+    {
+        _isSubmitting = true;
+        _errorMessages = Array.Empty<string>();
+        _successMessage = null;
+
+        try
+        {
+            ProductOrderRequestDto request = new(
+                _orderLines.Select(
+                    static orderLine => new ProductOrderDto(
+                        orderLine.ProductId.Trim(),
+                        orderLine.Quantity ?? 0,
+                        DispatchedAt: null)));
+
+            ProductOrderResponseDto response = await OrdersApi.SubmitOrdersAsync(request);
+
+            _successMessage = $"Accepted {response.AcceptedOrders} order line(s) for background processing.";
+            _orderLines.Clear();
+            _orderLines.Add(CreateEmptyOrderLine());
+        }
+        catch (ApiException apiException)
+        {
+            _errorMessages = ReadErrorMessages(apiException);
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessages =
+            [
+                "The Orders API could not be reached. Make sure OrdersAggregator.Server is running on the configured URL.",
+            ];
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private static OrderLineInputModel CreateEmptyOrderLine()
+    {
+        return new OrderLineInputModel
+        {
+            Quantity = 1,
+        };
+    }
+
+    private static IReadOnlyList<string> ReadErrorMessages(ApiException apiException)
+    {
+        ArgumentNullException.ThrowIfNull(apiException);
+
+        if (!string.IsNullOrWhiteSpace(apiException.Content))
+        {
+            try
+            {
+                ValidationProblemResponse? validationProblem =
+                    JsonSerializer.Deserialize<ValidationProblemResponse>(apiException.Content, SerializerOptions);
+
+                if (validationProblem?.Errors is { Count: > 0 })
+                {
+                    return validationProblem.Errors
+                        .SelectMany(static pair => pair.Value.Select(message => $"{pair.Key}: {message}"))
+                        .ToArray();
+                }
+
+                if (!string.IsNullOrWhiteSpace(validationProblem?.Title))
+                {
+                    return new[] { validationProblem.Title };
+                }
+            }
+            catch (JsonException)
+            {
+                return new[] { apiException.Content };
+            }
+
+            return new[] { apiException.Content };
+        }
+
+        return new[] { $"The request failed with status code {(int)apiException.StatusCode}." };
+    }
+
+    private sealed class OrderLineInputModel
+    {
+        public string ProductId { get; set; } = string.Empty;
+
+        public long? Quantity { get; set; }
+    }
+
+    private sealed class ValidationProblemResponse
+    {
+        public Dictionary<string, string[]> Errors { get; set; } = new(StringComparer.Ordinal);
+
+        public string? Title { get; set; }
+    }
+}

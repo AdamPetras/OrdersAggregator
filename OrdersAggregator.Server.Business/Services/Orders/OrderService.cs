@@ -1,7 +1,6 @@
 ﻿namespace OrdersAggregator.Server.Business.Services.Orders;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using OrdersAggregator.Contracts.Dtos;
 using OrdersAggregator.DAL;
 using OrdersAggregator.DAL.Services;
@@ -33,12 +32,10 @@ public sealed class OrderService : IOrderService
         IReadOnlyList<ProductOrderDto> orderList = orders as IReadOnlyList<ProductOrderDto> ?? orders.ToArray();
 
         await using OrdersDbContextBase context = await _ordersDbContextProvider.GetDbContextAsync(cancellationToken);
-        await using IDbContextTransaction transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
         await context.ProductOrderAggregates.AddRangeAsync(orderList.Select(OrderMapper.ToEntity), cancellationToken);
 
         await context.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
         return new OrderSubmissionResult(orderList.Count);
     }
 

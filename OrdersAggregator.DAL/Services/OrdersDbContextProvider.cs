@@ -9,14 +9,15 @@ using Microsoft.EntityFrameworkCore;
 /// </summary>
 public sealed class OrdersDbContextProvider : IOrdersDbContextProvider
 {
-    private readonly IDbContextFactory<OrdersDbContextBase> _dbContextFactory;
+    private readonly IDbContextFactory<OrdersDbContext> _dbContextFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="OrdersDbContextProvider"/> class with the specified database context factory.
     /// </summary>
     /// <param name="dbContextFactory">The factory used to create instances of <see cref="OrdersDbContext"/>. Cannot be null.</param>
-    public OrdersDbContextProvider(IDbContextFactory<OrdersDbContextBase> dbContextFactory)
+    public OrdersDbContextProvider(IDbContextFactory<OrdersDbContext> dbContextFactory)
     {
+        ArgumentNullException.ThrowIfNull(dbContextFactory);
         _dbContextFactory = dbContextFactory;
     }
 

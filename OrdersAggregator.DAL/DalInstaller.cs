@@ -22,34 +22,33 @@ namespace OrdersAggregator.DAL
             ArgumentNullException.ThrowIfNull(services);
             ArgumentNullException.ThrowIfNull(configuration);
 
-            ConnectionStringOptions options = new ConnectionStringOptions();
-            configuration.GetSection(ConnectionStringOptions.SectionName).Bind(options);
+            services.ConfigureOptions<ConnectionStringOptionsConfiguration>();
 
-            services.AddScoped<IOrdersDbContextProvider, OrdersDbContextProvider>();
-            services.AddSingleton(options);
+            services.AddSingleton<IOrdersDbContextProvider, OrdersDbContextProvider>();
 
-            if (options.UseInMemory)
+            if (true/*options.UseInMemory*/)
             {
-                return;
+                services.AddPooledDbContextFactory<OrdersDbContext>(
+                    dbContextOptions => dbContextOptions.UseInMemoryDatabase(nameof(OrdersAggregator)));
             }
 
-            services.AddPooledDbContextFactory<OrdersDbContext>(dbContextOptions => ConfigureDbContext(dbContextOptions, options));
+            // services.AddPooledDbContextFactory<OrdersDbContext>(dbContextOptions => ConfigureDbContext(dbContextOptions, options));
         }
 
-        /// <summary>
-        /// Configures the database context options for PostgresSQL-backed persistence.
-        /// </summary>
-        /// <param name="dbContextOptions">The database context options builder to configure.</param>
-        /// <param name="options">The persistence options to use for configuration.</param>
-        private static void ConfigureDbContext(
-            DbContextOptionsBuilder dbContextOptions,
-            ConnectionStringOptions options)
-        {
-            ArgumentNullException.ThrowIfNull(dbContextOptions);
-            ArgumentNullException.ThrowIfNull(options);
+        ///// <summary>
+        ///// Configures the database context options for PostgresSQL-backed persistence.
+        ///// </summary>
+        ///// <param name="dbContextOptions">The database context options builder to configure.</param>
+        ///// <param name="options">The persistence options to use for configuration.</param>
+        // private static void ConfigureDbContext(
+        // DbContextOptionsBuilder dbContextOptions,
+        // ConnectionStringOptions options)
+        // {
+        // ArgumentNullException.ThrowIfNull(dbContextOptions);
+        // ArgumentNullException.ThrowIfNull(options);
 
-            ArgumentException.ThrowIfNullOrWhiteSpace(options.ConnectionString);
-            dbContextOptions.UseNpgsql(options.ConnectionString);
-        }
+        // ArgumentException.ThrowIfNullOrWhiteSpace(options.ConnectionString);
+        // dbContextOptions.UseNpgsql(options.ConnectionString);
+        // }
     }
 }
