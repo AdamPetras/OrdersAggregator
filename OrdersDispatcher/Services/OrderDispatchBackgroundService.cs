@@ -33,15 +33,15 @@
             {
                 while (await timer.WaitForNextTickAsync(stoppingToken))
                 {
-                    IReadOnlyCollection<ProductOrderDto> pendingAggregates =
-                        await _orderService.TakePendingAsync(stoppingToken);
+                    IReadOnlyCollection<ProductOrderAggregatedDto> pendingAggregates =
+                        await _orderService.TakeGroupedPendingAsync(stoppingToken);
 
                     if (pendingAggregates.Count == 0)
                     {
                         continue;
                     }
 
-                    // await _aggregatedOrderDispatcher.DispatchAsync(pendingAggregates, stoppingToken);
+                    await _aggregatedOrderDispatcher.DispatchAsync(pendingAggregates, stoppingToken);
                 }
             }
         }

@@ -43,12 +43,13 @@ public sealed class OrderService : IOrderService
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyCollection<ProductOrderDto>> TakePendingAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<ProductOrderAggregatedDto>> TakeGroupedPendingAsync(CancellationToken cancellationToken = default)
     {
         await using OrdersDbContextBase context = await _ordersDbContextProvider.GetDbContextAsync(cancellationToken);
-        List<ProductOrderDto> pendingOrders = await context.ProductOrderAggregates.AsNoTracking()
+        List<ProductOrderAggregatedDto> pendingOrders = await context.ProductOrderAggregates.AsNoTracking()
            .Where(x => x.DispatchedAt == null)
-           .Select(x => new ProductOrderDto(x.ProductId, x.Quantity, x.DispatchedAt))
+           .GroupBy(x => x.ProductId)
+           .Select(x => new ProductOrderAggregatedDto(x.Key, x.Sum(y => y.Quantity)))
            .ToListAsync(cancellationToken: cancellationToken);
         return pendingOrders;
     }

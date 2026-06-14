@@ -1,5 +1,7 @@
 ﻿namespace OrdersDispatcher.Services;
 
+using OrdersAggregator.Contracts.Dtos;
+
 /// <summary>
 /// Sends aggregated product orders to the downstream internal system.
 /// </summary>
@@ -11,5 +13,5 @@ public interface IAggregatedOrderDispatcher
     /// <param name="aggregates">The aggregated orders to dispatch.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous dispatch operation.</returns>
-    Task DispatchAsync(IReadOnlyCollection<ProductOrderAggregate> aggregates, CancellationToken cancellationToken = default);
+    Task DispatchAsync(IReadOnlyCollection<ProductOrderAggregatedDto> aggregates, CancellationToken cancellationToken = default);
 }

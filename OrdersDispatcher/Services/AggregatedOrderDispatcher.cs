@@ -1,8 +1,8 @@
 ﻿namespace OrdersDispatcher.Services;
 
 using System.Text.Json;
-
 using Microsoft.Extensions.Logging;
+using OrdersAggregator.Contracts.Dtos;
 
 /// <summary>
 /// A simple implementation of <see cref="IAggregatedOrderDispatcher"/> that simulates dispatching by aggregating incoming data and printing it as JSON.
@@ -27,7 +27,7 @@ public class AggregatedOrderDispatcher : IAggregatedOrderDispatcher
     /// <param name="aggregates">The aggregated orders to dispatch.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous dispatch operation.</returns>
-    public Task DispatchAsync(IReadOnlyCollection<ProductOrderAggregate> aggregates, CancellationToken cancellationToken = default)
+    public Task DispatchAsync(IReadOnlyCollection<ProductOrderAggregatedDto> aggregates, CancellationToken cancellationToken = default)
     {
         string json = JsonSerializer.Serialize(aggregates, SerializerOptions);
         _logger.LogInformation("Dispatching aggregated orders: {Json}", json);

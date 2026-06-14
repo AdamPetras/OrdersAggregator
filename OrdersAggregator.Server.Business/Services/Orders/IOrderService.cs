@@ -18,10 +18,10 @@
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Retrieves the pending (not yet dispatched) aggregated orders for processing by the dispatching mechanism.
+        /// Retrieves all pending orders that have not yet been dispatched, grouped by product.
         /// </summary>
         /// <param name="cancellationToken">The token used to cancel the operation.</param>
-        /// <returns>The pending aggregated orders.</returns>
-        Task<IReadOnlyCollection<ProductOrderDto>> TakePendingAsync(CancellationToken cancellationToken = default);
+        /// <returns>A collection of aggregated product orders.</returns>
+        Task<IReadOnlyCollection<ProductOrderAggregatedDto>> TakeGroupedPendingAsync(CancellationToken cancellationToken = default);
     }
 }
