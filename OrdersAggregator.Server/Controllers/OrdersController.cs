@@ -12,15 +12,20 @@ namespace OrdersAggregator.Server.Controllers
     public sealed class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly ILogger<OrdersController> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OrdersController"/> class.
         /// </summary>
         /// <param name="orderService">The business service that validates and stores orders.</param>
-        public OrdersController(IOrderService orderService)
+        /// <param name="logger">The logger used to record submission outcomes.</param>
+        public OrdersController(IOrderService orderService, ILogger<OrdersController> logger)
         {
             ArgumentNullException.ThrowIfNull(orderService);
+            ArgumentNullException.ThrowIfNull(logger);
+
             _orderService = orderService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -38,6 +43,8 @@ namespace OrdersAggregator.Server.Controllers
         {
             if (request is null)
             {
+                OrdersControllerLogs.MissingRequestBody(_logger);
+
                 return BadRequest(
                     new ValidationProblemDetails(
                         new Dictionary<string, string[]>
@@ -54,13 +61,19 @@ namespace OrdersAggregator.Server.Controllers
                 OrderSubmissionResult submissionResult =
                     await _orderService.AddOrdersAsync(request.ProductOrders, cancellationToken);
 
+                OrdersControllerLogs.SubmissionAccepted(_logger, submissionResult.AcceptedOrderCount);
+
                 return Accepted(new ProductOrderResponseDto(submissionResult.AcceptedOrderCount));
             }
             catch (OrderSubmissionValidationException ex)
             {
+                Dictionary<string, string[]> errors =
+                    ex.Errors.ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.Ordinal);
+
+                OrdersControllerLogs.SubmissionRejected(_logger, errors.Count);
+
                 return BadRequest(
-                    new ValidationProblemDetails(
-                        ex.Errors.ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.Ordinal))
+                    new ValidationProblemDetails(errors)
                     {
                         Title = "Invalid order payload.",
                     });

@@ -16,6 +16,7 @@
   </Folder>
   <Project Path="OrdersAggregator.Contracts/OrdersAggregator.Contracts.csproj" Id="24df2c1e-06da-41eb-bac2-e983ab6403f6" />
   <Project Path="OrdersAggregator.Core/OrdersAggregator.Core.csproj" Id="619dd3ff-8859-41c6-a4f7-5f4062e06948" />
+  <Project Path="OrdersAggregator.Observability/OrdersAggregator.Observability.csproj" />
   <Project Path="OrdersAggregator/OrdersAggregator.Client.csproj" />
   <Project Path="OrdersDispatcher/OrdersDispatcher.csproj" Id="329c2160-e85a-40f8-a12c-b9fb353f8f48" />
 </Solution>

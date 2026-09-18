@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OrdersAggregator.Core.Diagnostics;
 using OrdersDispatcher.Configuration;
 using OrdersDispatcher.Services;
 
@@ -22,6 +23,7 @@ public static class OrdersDispatcherInstaller
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.ConfigureOptions<OrderDispatchOptionsConfiguration>();
+        services.AddOrdersDiagnostics();
 
         services.AddSingleton<IAggregatedOrderDispatcher, AggregatedOrderDispatcher>();
         services.AddHostedService<OrderDispatchBackgroundService>();

@@ -6,7 +6,7 @@ OrdersAggregator is a .NET 10 sample application for collecting product order li
 
 - `OrdersAggregator.Server` is the main local entry point. It serves the Blazor client and the API from the same origin.
 - The DAL already contains PostgreSQL-oriented configuration types and packages, but the current `DalInstaller` always wires EF Core to the in-memory provider.
-- The background dispatcher runs every 20 seconds and logs grouped pending orders. Pending rows are not marked as dispatched yet, so the same grouped payload can be emitted again on the next cycle.
+- The background dispatcher runs every 20 seconds and logs grouped pending orders, then stamps those rows with `DispatchedAt` so they are not emitted again. Marking happens only after a successful dispatch, which makes delivery at-least-once rather than exactly-once.
 - The solution contains xUnit test projects, but they currently do not contain discovered tests.
 
 ## Solution layout
@@ -57,6 +57,7 @@ Use the server project for end-to-end local development. The standalone client p
 4. `OrderService` stores each submitted line in `OrdersDbContext`.
 5. `OrderDispatchBackgroundService` wakes up every 20 seconds, groups pending rows by `ProductId`, and passes the aggregated payload to `IAggregatedOrderDispatcher`.
 6. `AggregatedOrderDispatcher` serializes the grouped payload and logs it.
+7. The dispatched order lines are stamped with `DispatchedAt`, so the next cycle only picks up newly submitted orders.
 
 ## Configuration
 
@@ -93,8 +94,22 @@ A successful submission returns `202 Accepted` with:
 
 More detail is in [docs/api.md](docs/api.md).
 
+## Observability
+
+The server exports OpenTelemetry logs, traces, and metrics over OTLP. A local Grafana stack
+(Loki, Tempo, Prometheus, Grafana behind an OpenTelemetry collector) is included:
+
+```powershell
+docker compose -f docker-compose.observability.yml up -d
+```
+
+Grafana is then at `http://localhost:3000` with the three datasources already provisioned. Export is
+configured through the `Observability` section of `OrdersAggregator.Server\appsettings.json`, and can be
+pointed at Grafana Cloud instead. See [docs/observability.md](docs/observability.md).
+
 ## Additional documentation
 
 - [docs/architecture.md](docs/architecture.md)
 - [docs/development.md](docs/development.md)
 - [docs/api.md](docs/api.md)
+- [docs/observability.md](docs/observability.md)

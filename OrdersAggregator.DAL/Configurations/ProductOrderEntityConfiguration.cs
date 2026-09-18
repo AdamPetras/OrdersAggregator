@@ -28,10 +28,15 @@ namespace OrdersAggregator.DAL.Configurations
             builder.Property(entity => entity.Quantity)
                 .IsRequired();
 
-            builder.HasIndex(entity => entity.ProductId)
-                .IsUnique();
+            // Deliberately not unique: AddOrdersAsync stores one row per submitted order line, and a product
+            // keeps its dispatched history alongside any newly pending lines. A unique index here would reject
+            // the second order for a product on any provider that enforces it.
+            builder.HasIndex(entity => entity.ProductId);
 
             builder.Property(entity => entity.DispatchedAt);
+
+            // The dispatch cycle filters on pending rows on every tick.
+            builder.HasIndex(entity => entity.DispatchedAt);
         }
     }
 }

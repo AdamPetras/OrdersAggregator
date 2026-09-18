@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using OrdersAggregator.Core.Diagnostics;
 using OrdersAggregator.Server.Business.Services.Orders;
 
 namespace OrdersAggregator.Server.Business
@@ -18,6 +20,9 @@ namespace OrdersAggregator.Server.Business
         {
             ArgumentNullException.ThrowIfNull(services);
             ArgumentNullException.ThrowIfNull(configuration);
+
+            services.AddOrdersDiagnostics();
+            services.TryAddSingleton(TimeProvider.System);
 
             services.AddSingleton<IOrderService, OrderService>();
         }

@@ -23,6 +23,7 @@
     <ProjectReference Include="..\OrdersAggregator.Contracts\OrdersAggregator.Contracts.csproj" />
     <ProjectReference Include="..\OrdersAggregator.Core\OrdersAggregator.Core.csproj" />
     <ProjectReference Include="..\OrdersAggregator.DAL\OrdersAggregator.DAL.csproj" />
+    <ProjectReference Include="..\OrdersAggregator.Observability\OrdersAggregator.Observability.csproj" />
     <ProjectReference Include="..\OrdersAggregator.Server.Business\OrdersAggregator.Server.Business.csproj" />
     <ProjectReference Include="..\OrdersDispatcher\OrdersDispatcher.csproj" />
   </ItemGroup>

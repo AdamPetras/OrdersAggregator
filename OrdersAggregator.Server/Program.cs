@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using OrdersAggregator.Contracts.Serialization;
 using OrdersAggregator.DAL.Extensions;
+using OrdersAggregator.Observability;
 using OrdersAggregator.Server.Business;
 
 namespace OrdersAggregator.Server
@@ -32,6 +33,11 @@ namespace OrdersAggregator.Server
             string[] developmentClientOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 
             builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
+
+            // Registered before the other layers so that the OpenTelemetry logging provider is attached to the
+            // logging pipeline ahead of anything that resolves an ILogger during startup.
+            builder.Services.AddObservability(builder.Configuration);
+
             builder.Services.AddControllers()
                 .AddJsonOptions(options => OrderApiJsonSerializer.Apply(options.JsonSerializerOptions));
 
